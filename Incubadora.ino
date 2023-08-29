@@ -229,7 +229,7 @@ static int bombillo(struct pt *pt)
           Serial.print(h);
           Serial.println("");
            
-          if(promedioTemperatura >= 38){
+          if(promedioTemperatura >= 40){  //38
             digitalWrite(BOMBILLO, HIGH);
             Serial.println("¡Bombillos apagados!");
           }
