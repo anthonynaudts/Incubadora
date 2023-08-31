@@ -5,12 +5,12 @@
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
 
-#define DHTTYPE DHT11
+#define DHTTYPE DHT22
 #define BUTTOM 13
 #define BOMBILLO 8
 #define ABANICO 6
-#define GIRO1 3
-#define GIRO2 2
+#define GIRO1 2 //antes 3
+#define GIRO2 3 // antes 2
 #define PIN_LM35 A0
 #define DHTPin 5
 DHT dht(DHTPin, DHTTYPE);
@@ -24,6 +24,7 @@ int buttonState = 0;
 double voltajeLM35 = 0.0;
 double TemperaturaLM35 = 0.0;
 double promedioTemperatura = 0;
+
 
 static struct pt pt1, pt2, pt3, pt4, pt5;
 
@@ -171,7 +172,7 @@ static int motor(struct pt *pt)
   static unsigned long lastTimeBlink = 0;
   static unsigned long permitir = 1;
   int reloj = 0;
-  int minuto = 1;
+  int minuto = 1; //debe estar en 1
   DateTime now = RTC.now();
   PT_BEGIN(pt);
   while(1) {
@@ -190,6 +191,7 @@ static int motor(struct pt *pt)
         digitalWrite(GIRO2, HIGH);
         
     lastTimeBlink = millis();
+
     PT_WAIT_UNTIL(pt, millis() - lastTimeBlink > 15000);
         digitalWrite(GIRO1, LOW);
         Serial.println("Giro del motor");
@@ -220,6 +222,7 @@ static int bombillo(struct pt *pt)
     lastTimeBlink = millis();
     PT_WAIT_UNTIL(pt, millis() - lastTimeBlink > 1000);
     float h = dht.readHumidity();
+    float t = dht.readTemperature();
         if(cont >= 10){
           promedioTemperatura = promedioTemperatura / cont;
           Serial.print("Temperatura: ");
@@ -228,8 +231,9 @@ static int bombillo(struct pt *pt)
           Serial.print("Humedad: ");
           Serial.print(h);
           Serial.println("");
-           
-          if(promedioTemperatura >= 40){  //38
+
+
+          if(promedioTemperatura >= 38){  //38
             digitalWrite(BOMBILLO, HIGH);
             Serial.println("¡Bombillos apagados!");
           }
@@ -245,21 +249,21 @@ static int bombillo(struct pt *pt)
             buttonState = digitalRead(BUTTOM);
             if(buttonState == LOW){
                  Serial.println("Proceso de nacimiento");
-                  if(h <= 63){
+                  if(h <= 63){ //63
                       digitalWrite(ABANICO, HIGH);
                       Serial.println("¡Abanico humedad apagado!");
                    }
-                   if(h >= 65){
+                   if(h >= 65){ //65
                       digitalWrite(ABANICO, LOW);
                       Serial.println("¡Abanico humedad encendido!");
                    }
              }else{
                 Serial.println("Proceso de incubacion");
-                  if(h <= 55){
+                  if(h <= 55){ //55
                       digitalWrite(ABANICO, HIGH);
                       Serial.println("¡Abanico humedad apagado!");
                    }
-                   if(h >= 60){
+                   if(h >= 60){ //60
                       digitalWrite(ABANICO, LOW);
                       Serial.println("¡Abanico humedad encendido!");
                    }
@@ -280,8 +284,14 @@ static int bombillo(struct pt *pt)
             voltajeLM35 = ((double)lecturaADC/1023)*5;
             TemperaturaLM35 = voltajeLM35/0.01;
             promedioTemperatura = promedioTemperatura + TemperaturaLM35;
-            Serial.print("Valor ");
+            Serial.print("Temp LM35 ");
             Serial.print(TemperaturaLM35);
+            Serial.print(" | ");
+            Serial.print("Temp DHT22 ");
+            Serial.print(t);
+            Serial.print(" | ");
+            Serial.print("Humedad ");
+            Serial.print(h);
             Serial.println("");
         }
         
