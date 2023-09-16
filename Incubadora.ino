@@ -18,7 +18,7 @@ LiquidCrystal_I2C lcd(0x3f,16,2);
 RTC_DS1307 RTC;
 void(* resetFunc) (void) = 0;
 
-long tiempoReseteo = 86400000 * 30; //30 días     // 1 día = 86400000
+long tiempoReseteo = 540000;      // 1 día = 86400000  | 9 minutos = 540000
 int lecturaADC = 0;
 int buttonState = 0;
 double voltajeLM35 = 0.0;
@@ -237,12 +237,10 @@ static int bombillo(struct pt *pt)
             digitalWrite(BOMBILLO, HIGH);
             Serial.println("¡Bombillos apagados!");
           }
-          if(promedioTemperatura <= 37.50){
+          if(promedioTemperatura <= 37.5){
             digitalWrite(BOMBILLO, LOW);  
             Serial.println("¡Bombillos encendidos!");
           }
-
-
 
 
            if(TemperaturaLM35 >= 37){
@@ -325,7 +323,7 @@ void setup() {
 }
 
 void loop() {
-//  temperaturaYHumedad(&pt1);
+// temperaturaYHumedad(&pt1);
   pantallaLCD(&pt2);
 //  reloj(&pt3);
   motor(&pt4);
